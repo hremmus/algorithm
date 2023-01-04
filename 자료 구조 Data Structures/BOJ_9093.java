@@ -1,29 +1,41 @@
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.util.Stack;
 
 public class Main {
-  /* 배열을 이용한 단어 뒤집기 */
+  /* 스택을 이용한 단어 뒤집기 (후입선출 LIFO 활용) */
   static int T;
 
   public static void main(String[] args) throws IOException {
     BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-    StringBuilder sb = new StringBuilder();
+    BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+
     T = Integer.parseInt(br.readLine());
     while (T-- > 0) {
-      String[] words = br.readLine().split(" "); // sentence를 공백 기준으로 잘라 배열에 담음
+      Stack<Character> stack = new Stack<>();
+      String sentence = br.readLine() + "\n";
+      for (char character : sentence.toCharArray()) { // String.toCharArray(): String -> char[]
+        if (character == ' ' || character == '\n') {
+          while (!stack.isEmpty()) {
+            bw.write(stack.pop()); // 공백 or 개행문자를 만난 시점에 stack에서 알파벳을 꺼내 버퍼에 담음
+          }
 
-      for (String word : words) {
-        for (int index = word.length() - 1; index >= 0; index--) { // 알파벳 맨 뒤부터 출력
-          sb.append(word.charAt(index)); // String.charAt(int): 해당하는 인덱스의 character를 반환
+          bw.write(character); // 공백 or 개행문자를 버퍼에 담음
+        } else {
+          stack.push(character); // stack에 알파벳을 저장
         }
-        sb.append(" ");
       }
-      sb.append("\n");
+
+      // 개행문자 \n를 문장 뒤와 조건에 추가하지 않는 대신 아래 문장으로 처리할 수 있다.
+      // while(!stack.isEmpty()) bw.write(stack.pop());
+      // bw.newLine();
     }
 
-    System.out.println(sb);
-
+    bw.flush();
     br.close();
+    bw.close();
   }
 }
