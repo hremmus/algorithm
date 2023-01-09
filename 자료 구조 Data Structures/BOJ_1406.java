@@ -1,81 +1,51 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-
-class Stack {
-  public Stack() {
-    arr = new char[600000]; // 100000 + 500000
-    top = -1;
-  }
-
-  private char arr[];
-  private int top;
-
-  public void push(char x) {
-    arr[++top] = x;
-  }
-
-  public char pop() {
-    if (empty())
-      return 'E';
-    return arr[top--];
-  }
-
-  public boolean empty() {
-    if (top == -1)
-      return true;
-    return false;
-  }
-
-  public int top() {
-    return top;
-  }
-}
+import java.util.LinkedList;
+import java.util.ListIterator;
 
 public class Main {
-  /* 스택 구조를 간략화하여 시간 단축 */
+  /* ListIterator 이용: Iterator와 달리 양방향 접근이 가능 previous/next */
   static int M;
 
   public static void main(String[] args) throws IOException {
     BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
     StringBuilder sb = new StringBuilder();
 
-    // 커서를 기준으로 하는 왼쪽-오른쪽 스택을 생성
-    Stack lStack = new Stack();
-    Stack rStack = new Stack();
-
+    LinkedList<Character> list = new LinkedList<>();
     String str = br.readLine();
-    for (char ch : str.toCharArray())
-      lStack.push(ch);
+    for (int i = 0; i < str.length(); i++)
+      list.add(str.charAt(i));
+
+    // index = list.size(); => 커서를 초기문자열 맨 뒤에 위치
+    ListIterator<Character> cursor = list.listIterator(list.size());
 
     M = Integer.parseInt(br.readLine());
     while (M-- > 0) {
       String command = br.readLine();
       switch (command.charAt(0)) {
-        case 'L': // 좌측으로 이동
-          if (!lStack.empty()) // 커서가 문장의 맨 앞이면 무시
-            rStack.push(lStack.pop());
+        case 'L':
+          if (cursor.hasPrevious())
+            cursor.previous();
           break;
-        case 'D': // 우측으로 이동
-          if (!rStack.empty()) // 커서가 문장의 맨 뒤면 무시
-            lStack.push(rStack.pop());
+        case 'D':
+          if (cursor.hasNext())
+            cursor.next();
           break;
-        case 'B': // 커서 왼쪽 문자 삭제
-          if (!lStack.empty()) // 커서가 문장의 맨 앞이면 무시
-            lStack.pop();
+        case 'B':
+          if (cursor.hasPrevious())
+            cursor.previous();
+          cursor.remove();
           break;
-        case 'P': // 커서 왼쪽 문자 추가
+        case 'P':
           char ch = command.charAt(2);
-          lStack.push(ch);
+          cursor.add(ch);
           break;
       }
     }
 
-    // "abcd" + "P x", "L", "P y"
-    while (!lStack.empty())
-      rStack.push(lStack.pop()); // x + ydcba
-    while (!rStack.empty())
-      sb.append(rStack.pop()); // abcdyx
+    for (char ch : list)
+      sb.append(ch);
 
     System.out.println(sb);
   }
